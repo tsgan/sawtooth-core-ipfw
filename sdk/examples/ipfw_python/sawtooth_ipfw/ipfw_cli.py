@@ -301,7 +301,7 @@ def do_list(args):
     client = IpfwClient(base_url=url, keyfile=None)
 
     rule_list = [
-        rule.split(',')
+        rule.split(';')
         for rules in client.list(auth_user=auth_user,
                                  auth_password=auth_password)
         for rule in rules.decode().split('|')
@@ -335,7 +335,7 @@ def do_show(args):
         action_str, ipfw_rule = {
             num: (action, rule)
             for num, action, rule, user_action in [
-                ipfw.split(',')
+                ipfw.split(';')
                 for ipfw in data.decode().split('|')
             ]
         }[num]

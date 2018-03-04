@@ -23,7 +23,7 @@ class IpfwPayload(object):
     def __init__(self, payload):
         try:
             # The payload is csv utf-8 encoded string
-            num, action, rule, user_action = payload.decode().split(",")
+            num, action, rule, user_action = payload.decode().split(";")
         except ValueError:
             raise InvalidTransaction("Invalid payload serialization")
 

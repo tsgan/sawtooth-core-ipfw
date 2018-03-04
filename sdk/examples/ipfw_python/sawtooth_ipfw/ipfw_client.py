@@ -189,7 +189,7 @@ class IpfwClient:
                      auth_user=None,
                      auth_password=None):
         # Serialization is just a delimited utf-8 encoded string
-        payload = ",".join([num, action, str(rule), user_action]).encode()
+        payload = ";".join([num, action, str(rule), user_action]).encode()
 
         # Construct the address
         address = self._get_address(num)

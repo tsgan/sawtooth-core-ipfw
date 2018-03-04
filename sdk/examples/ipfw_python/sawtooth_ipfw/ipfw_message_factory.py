@@ -37,7 +37,7 @@ class IpfwMessageFactory:
         return self._factory.create_tp_response(status)
 
     def _create_txn(self, txn_function, num, action, rule):
-        payload = ",".join([
+        payload = ";".join([
             str(num), str(action), str(rule), "add"
         ]).encode()
 
@@ -64,7 +64,7 @@ class IpfwMessageFactory:
 
         data = None
         if action is not None:
-            data = ",".join([num, action, rule, "add"]).encode()
+            data = ";".join([num, action, rule, "add"]).encode()
         else:
             data = None
 
@@ -77,7 +77,7 @@ class IpfwMessageFactory:
 
         data = None
         if rule is not None:
-            data = ",".join([num, action, rule, "add"]).encode()
+            data = ";".join([num, action, rule, "add"]).encode()
         else:
             data = None
 

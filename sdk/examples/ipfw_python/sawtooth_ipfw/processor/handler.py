@@ -28,7 +28,7 @@ from sawtooth_sdk.processor.exceptions import InternalError
 from sawtooth_ipfw.processor.ipfw_payload import IpfwPayload
 from sawtooth_ipfw.processor.ipfw_state import Ipfw
 from sawtooth_ipfw.processor.ipfw_state import IpfwState
-from sawtooth_ipfw.processor.ipfw_state import IPFW_NAMESPACE
+from sawtooth_ipfw.addressing.ipfw_addressing import addresser
 
 
 LOGGER = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ class IpfwTransactionHandler(TransactionHandler):
 
     @property
     def namespaces(self):
-        return [IPFW_NAMESPACE]
+        return [addresser.IPFW_NAMESPACE]
 
     def apply(self, transaction, context):
 
@@ -72,23 +72,23 @@ class IpfwTransactionHandler(TransactionHandler):
                     ipfw.rule,
                     ipfw_payload.num))
 
-            cmd = "ipfw show | grep " + ipfw_payload.num + " | awk '{print $1}'"
-            cmd_out = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-            output = cmd_out.communicate()[0]
-            output = output.decode("utf-8")
-            output = output.rstrip('\n')
-            if output == ipfw_payload.num:
+#            cmd = "ipfw show | grep " + ipfw_payload.num + " | awk '{print $1}'"
+#            cmd_out = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+#            output = cmd_out.communicate()[0]
+#            output = output.decode("utf-8")
+#            output = output.rstrip('\n')
+#            if output == ipfw_payload.num:
 
-                cmd = 'ipfw ' + 'delete' + ' ' + ipfw_payload.num
-                command = cmd.split()
-                try:
-                    res = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
-                except subprocess.CalledProcessError as e:
-                    if e.output:
-                        print("Oops... " + e.output)
-#                       sys.exit(e.returncode)
-                    else:
-                        _display("Error deleting ipfw rule".format(signer[:6]))
+#                cmd = 'ipfw ' + 'delete' + ' ' + ipfw_payload.num
+#                command = cmd.split()
+#                try:
+#                    res = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
+#                except subprocess.CalledProcessError as e:
+#                    if e.output:
+#                        print("Oops... " + e.output)
+##                       sys.exit(e.returncode)
+#                    else:
+#                        _display("Error deleting ipfw rule".format(signer[:6]))
 
         elif ipfw_payload.user_action == 'add':
 
@@ -111,23 +111,23 @@ class IpfwTransactionHandler(TransactionHandler):
                     ipfw_payload.num))
 
 
-            cmd = "ipfw show | grep " + ipfw_payload.num + " | awk '{print $1}'"
-            cmd_out = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-            output = cmd_out.communicate()[0]
-            output = output.decode("utf-8")
-            output = output.rstrip('\n')
-            if output != ipfw_payload.num:
+#            cmd = "ipfw show | grep " + ipfw_payload.num + " | awk '{print $1}'"
+#            cmd_out = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+#            output = cmd_out.communicate()[0]
+#            output = output.decode("utf-8")
+#            output = output.rstrip('\n')
+#            if output != ipfw_payload.num:
 
-                cmd = 'ipfw ' + 'add' + ' ' + ipfw_payload.num + ' ' + ipfw_payload.action + ' ' + ipfw_payload.rule
-                command = cmd.split()
-                try:
-                    res = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
-                except subprocess.CalledProcessError as e:
-                    if e.output:
-                        print("Oops... " + e.output)
-#                       sys.exit(e.returncode)
-                    else:
-                        _display("Error adding ipfw rule".format(signer[:6]))
+#                cmd = 'ipfw ' + 'add' + ' ' + ipfw_payload.num + ' ' + ipfw_payload.action + ' ' + ipfw_payload.rule
+#                command = cmd.split()
+#                try:
+#                    res = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
+#                except subprocess.CalledProcessError as e:
+#                    if e.output:
+#                        print("Oops... " + e.output)
+##                       sys.exit(e.returncode)
+#                    else:
+#                        _display("Error adding ipfw rule".format(signer[:6]))
 
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(

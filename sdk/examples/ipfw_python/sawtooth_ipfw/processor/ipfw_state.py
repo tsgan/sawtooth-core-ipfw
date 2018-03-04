@@ -18,14 +18,8 @@
 import hashlib
 
 from sawtooth_sdk.processor.exceptions import InternalError
+from sawtooth_ipfw.addressing.ipfw_addressing import addresser
 
-
-IPFW_NAMESPACE = hashlib.sha512('ipfw'.encode("utf-8")).hexdigest()[0:6]
-
-
-def _make_ipfw_address(num):
-    return IPFW_NAMESPACE + \
-        hashlib.sha512(num.encode('utf-8')).hexdigest()[:64]
 
 
 class Ipfw(object):
@@ -62,12 +56,13 @@ class IpfwState(object):
         """
 
         ipfws = self._load_ipfws(ipfw_num=ipfw_num)
+#        print(ipfws[ipfw_num])
 
         del ipfws[ipfw_num]
         if ipfws:
             self._store_ipfw(ipfw_num, ipfws=ipfws)
         else:
-            self._delete_ipfw(ipfw_num)
+            self._delete_ipfw(ipfw_num, ipfws=ipfws)
 
     def set_ipfw(self, ipfw_num, ipfw):
         """Store the ipfw in the validator state.
@@ -96,7 +91,7 @@ class IpfwState(object):
         return self._load_ipfws(ipfw_num=ipfw_num).get(ipfw_num)
 
     def _store_ipfw(self, ipfw_num, ipfws):
-        address = _make_ipfw_address(ipfw_num)
+        address = addresser.make_ipfw_address(ipfw_num)
 
         state_data = self._serialize(ipfws)
 
@@ -106,17 +101,23 @@ class IpfwState(object):
             {address: state_data},
             timeout=self.TIMEOUT)
 
-    def _delete_ipfw(self, ipfw_num):
-        address = _make_ipfw_address(ipfw_num)
+    def _delete_ipfw(self, ipfw_num, ipfws):
+        address = addresser.make_ipfw_address(ipfw_num)
+
+#        print(ipfw_num)
+#        print(self._address_cache[address])
 
         self._context.delete_state(
             [address],
+            timeout=self.TIMEOUT)
+        self._context.add_receipt_data(
+            ipfw_num.encode(),
             timeout=self.TIMEOUT)
 
         self._address_cache[address] = None
 
     def _load_ipfws(self, ipfw_num):
-        address = _make_ipfw_address(ipfw_num)
+        address = addresser.make_ipfw_address(ipfw_num)
 
         if address in self._address_cache:
             if self._address_cache[address]:
@@ -152,9 +153,10 @@ class IpfwState(object):
         """
 
         ipfws = {}
+
         try:
             for ipfw in data.decode().split("|"):
-                num, action, rule, user_action = ipfw.split(",")
+                num, action, rule, user_action = ipfw.split(";")
 
                 ipfws[num] = Ipfw(num, action, rule, user_action)
         except ValueError:
@@ -174,7 +176,7 @@ class IpfwState(object):
 
         ipfw_strs = []
         for num, g in ipfws.items():
-            ipfw_str = ",".join(
+            ipfw_str = ";".join(
                 [num, g.action, g.rule, g.user_action])
             ipfw_strs.append(ipfw_str)
 
