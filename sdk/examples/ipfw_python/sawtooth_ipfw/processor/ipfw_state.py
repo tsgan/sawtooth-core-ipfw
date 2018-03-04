@@ -110,9 +110,6 @@ class IpfwState(object):
         self._context.delete_state(
             [address],
             timeout=self.TIMEOUT)
-        self._context.add_receipt_data(
-            ipfw_num.encode(),
-            timeout=self.TIMEOUT)
 
         self._address_cache[address] = None
 
