@@ -73,14 +73,14 @@ def _parse_state_changes(events):
 
 def _apply_state_changes(ipfw_rule, changes, block_num, block_id):
     for change in changes:
-#        LOGGER.debug("change: %s", change)
-        if change.type == 1:
+        if change.type == 1:	# SET case
             val = change.value
             num, action, rule, user_action = val.decode().split(";")
             LOGGER.debug("Adding ipfw rule: %s", num)
             LOGGER.debug("ipfw rule: %s, %s, %s, %s", num, action, rule, user_action)
             ipfw_rule.add(num, action, rule)
-        elif change.type == 2:
+        elif change.type == 2:	# DELETE case
+            # Get ipfw rule number from payload
             rest_client = RestClient()
             output = rest_client.get_block(block_id)
             output = output['batches']
@@ -89,7 +89,6 @@ def _apply_state_changes(ipfw_rule, changes, block_num, block_id):
             LOGGER.debug("Payload: %s", base64.b64decode(output).decode())
             num, action, rule, user_action = base64.b64decode(output).decode().split(";")
             LOGGER.debug("Deleting ipfw rule: %s", num)
-            LOGGER.debug("ipfw rule: %s", num)
             ipfw_rule.delete(num)
 
 
