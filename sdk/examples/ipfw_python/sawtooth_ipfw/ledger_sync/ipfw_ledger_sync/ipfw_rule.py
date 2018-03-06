@@ -29,11 +29,9 @@ class Ipfw_Rule(object):
     def add(self, num, action, rule):
         """Adds ipfw rule
         """
-        cmd = "ipfw show | grep " + num + " | awk '{print $1}'"
-        cmd_out = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        output = cmd_out.communicate()[0]
-        output = output.decode("utf-8")
-        output = output.rstrip('\n')
+
+        # Check if such ipfw rule exist
+        output = _get_ipfw_rule(num)
         if output != num:
 
             cmd = 'ipfw ' + 'add' + ' ' + num + ' ' + action + ' ' + rule
@@ -43,18 +41,15 @@ class Ipfw_Rule(object):
             except subprocess.CalledProcessError as e:
                 if e.output:
                     print("Oops... " + e.output)
-#                   sys.exit(e.returncode)
                 else:
                     _display("Error adding ipfw rule".format(signer[:6]))
 
     def delete(self, num):
         """Delete ipfw rule
         """
-        cmd = "ipfw show | grep " + num + " | awk '{print $1}'"
-        cmd_out = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        output = cmd_out.communicate()[0]
-        output = output.decode("utf-8")
-        output = output.rstrip('\n')
+
+        # Check if such ipfw rule exist
+        output = _get_ipfw_rule(num)
         if output == num:
 
             cmd = 'ipfw ' + 'delete' + ' ' + num
@@ -64,9 +59,19 @@ class Ipfw_Rule(object):
             except subprocess.CalledProcessError as e:
                 if e.output:
                     print("Oops... " + e.output)
-#                   sys.exit(e.returncode)
                 else:
                     _display("Error deleting ipfw rule".format(signer[:6]))
+
+
+def _get_ipfw_rule(num):
+    cmd = "ipfw show " + num + " | awk '{print $1}'"
+    cmd_out = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    output = cmd_out.communicate()[0]
+    output = output.decode("utf-8")
+    output = output.rstrip('\n')
+
+    return output
+
 
 def _display(msg):
     n = msg.count("\n")
