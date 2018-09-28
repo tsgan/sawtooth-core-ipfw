@@ -1,6 +1,6 @@
 # sawtooth-core-ipfw
 
-These are some sample PoC codes to distribue FreeBSD ipfw rules on blockchain network using Hyperledger Sawtooth platform.
+These are some sample PoC codes to distribute FreeBSD ipfw rules on blockchain network using Hyperledger Sawtooth platform.
 
 For installing Hyperledger Sawtooth on FreeBSD:
 
